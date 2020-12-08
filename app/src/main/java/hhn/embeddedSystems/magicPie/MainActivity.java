@@ -110,10 +110,7 @@ public class MainActivity extends AppCompatActivity {
                     float currentPower = (float) (recieved[10]*25.5 + recieved[11]/10);
 
 
-                    /*
-                    rpm : max 0-147 , min 255-255
-                    max is less than 380rpm
-                     */
+
                     double currentSpeed = calculateRPM(recieved[5],recieved[6]) * WHEEL_DIAMETER * CONSTANT_FOR_CALCULATING_KMH_SPEED ;
 
                     rpmView.setText(    "  RPM : "+ calculateRPM(recieved[5],recieved[6]));
@@ -176,11 +173,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * calculates speed using two hex numbers
+     * calculates rpm using two hex numbers
      */
     private double calculateRPM(int first, int second){
         double frequency = 0;
-        if(second!=0){
+        if(first!=0||second!=0){
          frequency= 1000/(first*225 + second);}
         return (frequency * 60 * 2) / MOTOR_POLES; // no-load rpm
     }
