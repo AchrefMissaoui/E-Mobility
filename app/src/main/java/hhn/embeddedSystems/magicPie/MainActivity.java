@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     public final static int MESSAGE_READ = 2; // used in bluetooth handler to identify message update
     private final static int CONNECTING_STATUS = 3; // used in bluetooth handler to identify message status
     // #define hardware
-    private final static int WHEEL_DIAMETER = 27;
+    private final static int WHEEL_DIAMETER = 29 ; // in inches
     private final static int MOTOR_POLES = 4;
     private final static double CONSTANT_FOR_CALCULATING_KMH_SPEED =  0.001885;
 
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-                    double currentSpeed = calculateRPM(recieved[5],recieved[6]) * WHEEL_DIAMETER * CONSTANT_FOR_CALCULATING_KMH_SPEED ;
+                    double currentSpeed = calculateRPM(recieved[5],recieved[6]) * WHEEL_DIAMETER *  2.54 * CONSTANT_FOR_CALCULATING_KMH_SPEED ;
 
                     rpmView.setText(    "  RPM : "+ calculateRPM(recieved[5],recieved[6]));
                     powerView.setText(  "  POW : "+ currentPower );
