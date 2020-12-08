@@ -183,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * changes items visibility when connected to a BT device
+     * changes items visibility when connected/disconnected to a BT device
      */
     private void changeVisibilityWhenConnected(boolean isConnected){
         if(isConnected){
