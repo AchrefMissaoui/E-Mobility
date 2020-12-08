@@ -46,6 +46,10 @@ public class MainActivity extends AppCompatActivity {
     private final static int REQUEST_ENABLE_BT = 1; // used to identify adding bluetooth names
     public final static int MESSAGE_READ = 2; // used in bluetooth handler to identify message update
     private final static int CONNECTING_STATUS = 3; // used in bluetooth handler to identify message status
+    // #define hardware
+    private final static int WHEEL_DIAMETER = 27;
+    private final static int MOTOR_POLES = 4;
+    private final static double CONSTANT_FOR_CALCULATING_KMH_SPEED =  0.001885;
 
     // GUI Components
     private TextView mBluetoothStatus;
@@ -102,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
                     for(int i = 0;i<15;i++){
                         recieved[i] = convertNumbers(recBytes[i]);
                     }
+
                     float currentPower = (float) (recieved[10]*25.5 + recieved[11]/10);
 
 
@@ -109,12 +114,12 @@ public class MainActivity extends AppCompatActivity {
                     rpm : max 0-147 , min 255-255
                     max is less than 380rpm
                      */
+                    double currentSpeed = calculateRPM(recieved[5],recieved[6]) * WHEEL_DIAMETER * CONSTANT_FOR_CALCULATING_KMH_SPEED ;
 
-                    rpmView.setText(    "  RPM : "+ recieved[5] + " - " + recieved[6]);//+(int)(recieved[5])*65 + " ---- " +(int) (recieved[6]/65));//Math.abs(recieved[5])%255+"-"+Math.abs(recieved[6]-255));
+                    rpmView.setText(    "  RPM : "+ calculateRPM(recieved[5],recieved[6]));
                     powerView.setText(  "  POW : "+ currentPower );
                     currentView.setText("  CUR : "+Math.abs(recBytes[13])/10 +"," +valueOf(recieved[14]));
-                    int currentSpeed = Math.abs(recieved[6]-255) / 10;
-                    speedView.speedTo(currentSpeed);
+                    speedView.speedTo((float) currentSpeed);
 
 
                 }
@@ -168,6 +173,16 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    /**
+     * calculates speed using two hex numbers
+     */
+    private double calculateRPM(int first, int second){
+        double frequency = 0;
+        if(second!=0){
+         frequency= 1000/(first*225 + second);}
+        return (frequency * 60 * 2) / MOTOR_POLES; // no-load rpm
     }
 
     /**
