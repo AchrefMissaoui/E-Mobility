@@ -122,16 +122,11 @@ public class MainActivity extends AppCompatActivity {
                 if(msg.what == CONNECTING_STATUS){
                     if(msg.arg1 == 1) {
                         mBluetoothStatus.setText("Connected to Device: " + msg.obj);
-                        mDevicesListView.setVisibility(View.GONE);
-                        rpmView.setVisibility(View.VISIBLE);
-                        powerView.setVisibility(View.VISIBLE);
-                        currentView.setVisibility(View.VISIBLE);
-                        mDiscoverBtn.setVisibility(View.GONE);
-                        mListPairedDevicesBtn.setVisibility(View.GONE);
-                        speedView.setVisibility(View.VISIBLE);
+                        changeVisibilityWhenConnected(true);
                     }
                         else
                         mBluetoothStatus.setText("Connection Failed");
+
 
 
                 }
@@ -175,6 +170,34 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * changes items visibility when connected to a BT device
+     */
+    private void changeVisibilityWhenConnected(boolean isConnected){
+        if(isConnected){
+            mDevicesListView.setVisibility(View.GONE);
+            rpmView.setVisibility(View.VISIBLE);
+            powerView.setVisibility(View.VISIBLE);
+            currentView.setVisibility(View.VISIBLE);
+            mDiscoverBtn.setVisibility(View.GONE);
+            mListPairedDevicesBtn.setVisibility(View.GONE);
+            speedView.setVisibility(View.VISIBLE);
+        }else {
+            mDevicesListView.setVisibility(View.VISIBLE);
+            rpmView.setVisibility(View.GONE);
+            powerView.setVisibility(View.GONE);
+            currentView.setVisibility(View.GONE);
+            mDiscoverBtn.setVisibility(View.VISIBLE);
+            mListPairedDevicesBtn.setVisibility(View.VISIBLE);
+            speedView.setVisibility(View.GONE);
+        }
+    }
+
+
+    /**
+     *converts numbers from range -127--127 to 0--255
+     * returns int
+     */
     private int convertNumbers(int number){
         if(number<0){
             return Math.abs(number + 256)%256;
@@ -212,9 +235,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void bluetoothOff(){
+        if(mBluetoothStatus.getText().toString().contains("Connected")){
+            changeVisibilityWhenConnected(false);
+        }
         mBTAdapter.disable(); // turn off
         mBluetoothStatus.setText("Bluetooth disabled");
         Toast.makeText(getApplicationContext(),"Bluetooth turned Off", Toast.LENGTH_SHORT).show();
+
     }
 
     private void discover(){
