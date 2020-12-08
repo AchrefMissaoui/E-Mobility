@@ -116,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
                     rpmView.setText(    "  RPM : "+ calculateRPM(recieved[5],recieved[6]));
                     powerView.setText(  "  POW : "+ currentPower );
                     currentView.setText("  CUR : "+Math.abs(recBytes[13])/10 +"," +valueOf(recieved[14]));
+                    speedView.setWithTremble(false);
                     speedView.speedTo((float) currentSpeed);
 
 
