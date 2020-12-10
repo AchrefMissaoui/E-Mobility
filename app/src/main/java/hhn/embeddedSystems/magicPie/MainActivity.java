@@ -243,7 +243,8 @@ public class MainActivity extends AppCompatActivity {
             cDownloadBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mConnectedThread.write(REQUEST_PARAMETERS_HEX);
+                    if(mConnectedThread != null)
+                        mConnectedThread.write(REQUEST_PARAMETERS_HEX);
                 }
             });
         }
