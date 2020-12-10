@@ -18,10 +18,12 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,7 +36,6 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
-
 
 
 
@@ -52,9 +53,14 @@ public class MainActivity extends AppCompatActivity {
     private final static double WHEEL_DIAMETER = 71.12; // in cm
     private final static int MOTOR_POLES = 4;
     private final static double CONSTANT_FOR_CALCULATING_KMH_SPEED = 0.001885;
-    private static String CURRENT_VIEW;
+    // #define requests
+    private final static String REQUEST_STATE_HEX = "6642020000aa";
+    private final static String REQUEST_PARAMETERS_HEX = "6602006866100076";
+    private final static String RESPONSE_STATE_HEADER = "10266115";
+    private final static String RESPONSE_PARAMETERS_HEADER = "5555";
 
     // GUI Components
+    private View viewState;
     private TextView mBluetoothStatus;
     private TextView rpmView, powerView, currentView;
     private Button mScanBtn;
@@ -66,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView settingsBtn;
 
     // GUI from controller
+    private View viewController;
     private TextView cPAS ;
     private TextView cNomVolt;
     private TextView cOverVolt;
@@ -90,13 +97,16 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothSocket mBTSocket = null; // bi-directional client-to-client data path
     public double MAX_SPEED = 0;
     public double MAX_RPM = 0;
+    public String currentLayout ;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        CURRENT_VIEW = "main";
+        currentLayout = "main";
+        viewState =  findViewById(R.id.activity_state);
+        viewController = findViewById(R.id.activity_controller);
 
         mBluetoothStatus = (TextView) findViewById(R.id.bluetooth_status);
         rpmView = (TextView) findViewById(R.id.rpmView);
@@ -108,8 +118,13 @@ public class MainActivity extends AppCompatActivity {
         mListPairedDevicesBtn = (Button) findViewById(R.id.paired_btn);
         speedView = (SpeedView) findViewById(R.id.speedView);
         settingsBtn = (ImageView) findViewById(R.id.settingButton);
+        cDownloadBtn = (Button) findViewById(R.id.buttonDownload);
+        cUploadBtn = (Button) findViewById(R.id.buttonUpload);
+        cResetBtn = (Button) findViewById(R.id.buttonFactorySetting);
 
 
+
+        viewController.setVisibility(View.GONE);
 
 
         mBTArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
@@ -129,37 +144,45 @@ public class MainActivity extends AppCompatActivity {
             public void handleMessage(Message msg) {
                 if (msg.what == MESSAGE_READ) {
                     byte[] recBytes = (byte[]) msg.obj;
-                    int[] recieved = new int[15];
-                    for (int i = 0; i < 15; i++) {
-                        recieved[i] = convertNumbers(recBytes[i]);
+                    String recHeader = String.format("%s%s%s%s",recBytes[0],recBytes[1],recBytes[2],recBytes[3]);
+                    if(recHeader.equals(RESPONSE_STATE_HEADER)) {
+                        int[] recievedState = new int[15];
+                        for (int i = 0; i < 15; i++) {
+                            recievedState[i] = convertNumbers(recBytes[i]);
+                        }
+
+                        double currentPower = ((recievedState[10] * 25.5) + (recievedState[11] / 10));
+
+
+                        double currentRpm = calculateRPM(recievedState[5], recievedState[6]);
+                        if (currentRpm < 1) {
+                            currentRpm = 0;
+                        }
+                        double currentSpeed = currentRpm * WHEEL_DIAMETER * CONSTANT_FOR_CALCULATING_KMH_SPEED;
+
+
+                        double currentCurr = recievedState[13] * 255 + recievedState[14];
+
+                        if (currentSpeed > MAX_SPEED) {
+                            MAX_SPEED = currentSpeed;
+                        }
+                        if (currentRpm > MAX_RPM) {
+                            MAX_RPM = currentRpm;
+                        }
+
+                        rpmView.setText(String.format("  RPM : %s", currentRpm));
+                        powerView.setText(String.format("  POW : %s", currentPower));
+                        currentView.setText("curr : " + recievedState[13] + " - " + recievedState[14]);
+                        speedView.setWithTremble(false);
+                        speedView.speedTo((float) currentSpeed);
+                    }else if(recHeader.equals(RESPONSE_PARAMETERS_HEADER)){
+
+                        cPAS.setText(String.format("%s",recBytes[4]));
+                        cNomVolt.setText(String.format("%s",recBytes[5]));
+                        cOverVolt.setText(String.format("%s",recBytes[6]));
+                        cUnderVolt.setText(String.format("%s",recBytes[7]));
+
                     }
-
-                    double currentPower = ((recieved[10] * 25.5) + (recieved[11] / 10));
-
-
-                    double currentRpm = calculateRPM(recieved[5], recieved[6]);
-                    if (currentRpm < 1) {
-                        currentRpm = 0;
-                    }
-                    double currentSpeed = currentRpm * WHEEL_DIAMETER * CONSTANT_FOR_CALCULATING_KMH_SPEED;
-
-
-                    double currentCurr = recieved[13] * 255 + recieved[14];
-
-                    if (currentSpeed > MAX_SPEED) {
-                        MAX_SPEED = currentSpeed;
-                    }
-                    if (currentRpm > MAX_RPM) {
-                        MAX_RPM = currentRpm;
-                    }
-
-                    rpmView.setText(String.format("  RPM : %s", currentRpm));
-                    powerView.setText(String.format("  POW : %s", currentPower));
-                    currentView.setText("curr : " + recieved[13] + " - " + recieved[14]);
-                    speedView.setWithTremble(false);
-                    speedView.speedTo((float) currentSpeed);
-
-
                 }
 
                 if (msg.what == CONNECTING_STATUS) {
@@ -216,32 +239,44 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             });
+
+            cDownloadBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mConnectedThread.write(REQUEST_PARAMETERS_HEX);
+                }
+            });
         }
     }
 
     @Override
     public void onBackPressed()
     {
-        Intent i = new Intent(getApplicationContext(),MainActivity.class);
-        startActivity(i);
+        viewController.setVisibility(View.GONE);
+        viewState.setVisibility(View.VISIBLE);
+        currentLayout="main";
     }
 
     public void changeView(){
-        setContentView(R.layout.activity_controller);
+        currentLayout = "controller";
+        viewState.setVisibility(View.GONE);
+        viewController.setVisibility(View.VISIBLE);
+
         cAcceleration = (TextView) findViewById(R.id.textViewAcceleration);
         cBatteryCurr = (TextView) findViewById(R.id.textViewBatteryDrawnCurrent);
-        cMaxEBSPhaseCurr = (TextView) findViewById(R.id.textViewMaxEBSPhaseCurrent); ;
-        cMaxForwardRpm = (TextView) findViewById(R.id.textViewMaxForwardRpm); ;
-        cMaxReverseRpm = (TextView) findViewById(R.id.textViewMaxReverseRpm); ;
-        cNomVolt = (TextView) findViewById(R.id.texViewNominalBatteryVoltage); ;
-        cOverVolt =  (TextView) findViewById(R.id.texViewOvervoltageProtectionValue);;
-        cUnderVolt =  (TextView) findViewById(R.id.textViewUnderVoltageProtectionValue);;
-        cRatedPhaseCurr =  (TextView) findViewById(R.id.textViewRatedPhaseCurrent);;
+        cMaxEBSPhaseCurr = (TextView) findViewById(R.id.textViewMaxEBSPhaseCurrent);
+        cMaxForwardRpm = (TextView) findViewById(R.id.textViewMaxForwardRpm);
+        cMaxReverseRpm = (TextView) findViewById(R.id.textViewMaxReverseRpm);
+        cNomVolt = (TextView) findViewById(R.id.texViewNominalBatteryVoltage);
+        cOverVolt =  (TextView) findViewById(R.id.texViewOvervoltageProtectionValue);
+        cUnderVolt =  (TextView) findViewById(R.id.textViewUnderVoltageProtectionValue);
+        cRatedPhaseCurr =  (TextView) findViewById(R.id.textViewRatedPhaseCurrent);
         cPAS = (TextView) findViewById(R.id.texViewPAS);
 
-        cDownloadBtn = (Button) findViewById(R.id.buttonDownload);
-        cUploadBtn = (Button) findViewById(R.id.buttonUpload);
-        cResetBtn = (Button) findViewById(R.id.buttonFactorySetting);
+
+
+
+
     }
 
 
@@ -441,7 +476,8 @@ public class MainActivity extends AppCompatActivity {
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            mConnectedThread.write("6642020000aa");
+                                            if(currentLayout.equals("main"))
+                                            mConnectedThread.write(REQUEST_STATE_HEX);
                                         }
                                     });
                                 }
