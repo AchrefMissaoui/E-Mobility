@@ -9,7 +9,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.mcuhq.simplebluetooth.MainActivity">
+    tools:context="hhn.embeddedSystems.magicPie.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,12 +27,19 @@
 
         <TextView
             android:id="@+id/bluetooth_status"
-            android:layout_width="wrap_content"
+            android:layout_width="257dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.9"
             android:ellipsize="end"
             android:maxLines="1"
             android:text="&lt;Bluetooth Status>" />
+
+        <ImageView
+            android:id="@+id/settingButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.1"
+            app:srcCompat="@android:drawable/ic_menu_manage" />
     </LinearLayout>
 
     <Button
@@ -63,7 +70,7 @@
         android:id="@+id/rpmView"
         android:layout_width="match_parent"
         android:layout_height="44dp"
-        android:textSize="30sp"
+        android:textSize="20sp"
         android:textStyle="bold|italic"
         android:visibility="gone" />
 
@@ -78,7 +85,7 @@
         android:id="@+id/currentView"
         android:layout_width="match_parent"
         android:layout_height="44dp"
-        android:textSize="14sp"
+        android:textSize="15sp"
         android:visibility="gone" />
 
     <ListView
@@ -86,7 +93,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:choiceMode="singleChoice"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
     <com.github.anastr.speedviewlib.SpeedView
         android:id="@+id/speedView"
