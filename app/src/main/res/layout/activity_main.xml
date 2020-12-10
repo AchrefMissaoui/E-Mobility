@@ -27,12 +27,19 @@
 
         <TextView
             android:id="@+id/bluetooth_status"
-            android:layout_width="wrap_content"
+            android:layout_width="257dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.9"
             android:ellipsize="end"
             android:maxLines="1"
             android:text="&lt;Bluetooth Status>" />
+
+        <ImageView
+            android:id="@+id/settingButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.1"
+            app:srcCompat="@android:drawable/ic_menu_manage" />
     </LinearLayout>
 
     <Button
@@ -86,7 +93,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:choiceMode="singleChoice"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
     <com.github.anastr.speedviewlib.SpeedView
         android:id="@+id/speedView"
