@@ -36,6 +36,8 @@ import java.util.UUID;
 
 import static java.lang.String.valueOf;
 
+
+
 public class MainActivity extends AppCompatActivity {
 
     private final String TAG = MainActivity.class.getSimpleName();
@@ -47,9 +49,9 @@ public class MainActivity extends AppCompatActivity {
     public final static int MESSAGE_READ = 2; // used in bluetooth handler to identify message update
     private final static int CONNECTING_STATUS = 3; // used in bluetooth handler to identify message status
     // #define hardware
-    private final static int WHEEL_DIAMETER = 29 ; // in inches
+    private final static double WHEEL_DIAMETER = 71.12 ; // in cm
     private final static int MOTOR_POLES = 4;
-    private final static double CONSTANT_FOR_CALCULATING_KMH_SPEED =  0.001885;
+    private final static double CONSTANT_FOR_CALCULATING_KMH_SPEED = 0.001885;
 
     // GUI Components
     private TextView mBluetoothStatus;
@@ -68,6 +70,9 @@ public class MainActivity extends AppCompatActivity {
     private Handler mHandler; // Our main handler that will receive callback notifications
     private ConnectedThread mConnectedThread; // bluetooth background worker thread to send and receive data
     private BluetoothSocket mBTSocket = null; // bi-directional client-to-client data path
+    public double MAX_SPEED = 0;
+    public double MAX_RPM = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,15 +112,25 @@ public class MainActivity extends AppCompatActivity {
                         recieved[i] = convertNumbers(recBytes[i]);
                     }
 
-                    float currentPower = (float) (recieved[10]*25.5 + recieved[11]/10);
+                    double currentPower = ((recieved[10] * 25.5) + (recieved[11]/10));
 
 
+                    double currentRpm = calculateRPM(recieved[5],recieved[6]);
+                    if(currentRpm<1){
+                        currentRpm=0; }
+                    double currentSpeed = currentRpm * WHEEL_DIAMETER *  CONSTANT_FOR_CALCULATING_KMH_SPEED;
 
-                    double currentSpeed = calculateRPM(recieved[5],recieved[6]) * WHEEL_DIAMETER *  2.54 * CONSTANT_FOR_CALCULATING_KMH_SPEED ;
 
-                    rpmView.setText(    "  RPM : "+ calculateRPM(recieved[5],recieved[6]));
-                    powerView.setText(  "  POW : "+ currentPower );
-                    currentView.setText("  CUR : "+Math.abs(recBytes[13])/10 +"," +valueOf(recieved[14]));
+                    double currentCurr = recieved[13]*255+recieved[14];
+
+                   if(currentSpeed>MAX_SPEED){
+                        MAX_SPEED = currentSpeed;}
+                    if(currentRpm>MAX_RPM){
+                        MAX_RPM = currentRpm;}
+
+                    rpmView.setText(String.format("  RPM : %s", currentRpm));
+                    powerView.setText(String.format("  POW : %s", currentPower));
+                    currentView.setText("curr : " + recieved[13]+" - "+ recieved[14]);
                     speedView.setWithTremble(false);
                     speedView.speedTo((float) currentSpeed);
 
@@ -178,8 +193,11 @@ public class MainActivity extends AppCompatActivity {
      */
     private double calculateRPM(int first, int second){
         double frequency = 0;
-        if(first!=0||second!=0){
-         frequency= 1000/(first*225 + second);}
+        double numSeconds = 0;
+            numSeconds = first*255 + second;
+            numSeconds = numSeconds/1000;
+            if(numSeconds!=0){
+            frequency= 1/numSeconds;}
         return (frequency * 60 * 2) / MOTOR_POLES; // no-load rpm
     }
 
