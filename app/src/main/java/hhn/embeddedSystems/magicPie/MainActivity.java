@@ -56,8 +56,9 @@ public class MainActivity extends AppCompatActivity {
     // #define requests
     private final static String REQUEST_STATE_HEX = "6642020000aa";
     private final static String REQUEST_PARAMETERS_HEX = "6602006866100076";
+    private final static String REQUEST_FACTORY_RESET_HEX ="668120030405060708090a0b0c0d0e0f101112131415161718191b1c1d1e1f20212257";
     private final static String RESPONSE_STATE_HEADER = "10266115";
-    private final static String RESPONSE_PARAMETERS_HEADER = "5555";
+    private final static String RESPONSE_PARAMETERS_HEADER = "";
 
     // GUI Components
     private View viewState;
@@ -245,6 +246,14 @@ public class MainActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     if(mConnectedThread != null)
                         mConnectedThread.write(REQUEST_PARAMETERS_HEX);
+                }
+            });
+
+            cResetBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(mConnectedThread != null)
+                        mConnectedThread.write(REQUEST_FACTORY_RESET_HEX);
                 }
             });
         }
