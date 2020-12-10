@@ -21,7 +21,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,6 +34,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
+import static java.lang.String.valueOf;
 
 
 
@@ -49,10 +49,9 @@ public class MainActivity extends AppCompatActivity {
     public final static int MESSAGE_READ = 2; // used in bluetooth handler to identify message update
     private final static int CONNECTING_STATUS = 3; // used in bluetooth handler to identify message status
     // #define hardware
-    private final static double WHEEL_DIAMETER = 71.12; // in cm
+    private final static double WHEEL_DIAMETER = 71.12 ; // in cm
     private final static int MOTOR_POLES = 4;
     private final static double CONSTANT_FOR_CALCULATING_KMH_SPEED = 0.001885;
-    private static String CURRENT_VIEW;
 
     // GUI Components
     private TextView mBluetoothStatus;
@@ -63,23 +62,6 @@ public class MainActivity extends AppCompatActivity {
     private Button mDiscoverBtn;
     private ListView mDevicesListView;
     private SpeedView speedView;
-    private ImageView settingsBtn;
-
-    // GUI from controller
-    private TextView cPAS ;
-    private TextView cNomVolt;
-    private TextView cOverVolt;
-    private TextView cUnderVolt;
-    private TextView cBatteryCurr;
-    private TextView cRatedPhaseCurr;
-    private TextView cMaxForwardRpm;
-    private TextView cMaxReverseRpm;
-    private TextView cMaxEBSPhaseCurr;
-    private TextView cAcceleration;
-    private Button cDownloadBtn;
-    private Button cUploadBtn;
-    private Button cResetBtn;
-
 
     private BluetoothAdapter mBTAdapter;
     private Set<BluetoothDevice> mPairedDevices;
@@ -96,78 +78,73 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        CURRENT_VIEW = "main";
 
-        mBluetoothStatus = (TextView) findViewById(R.id.bluetooth_status);
+        mBluetoothStatus = (TextView)findViewById(R.id.bluetooth_status);
         rpmView = (TextView) findViewById(R.id.rpmView);
         powerView = (TextView) findViewById(R.id.powerView);
         currentView = (TextView) findViewById(R.id.currentView);
-        mScanBtn = (Button) findViewById(R.id.scan);
-        mOffBtn = (Button) findViewById(R.id.off);
-        mDiscoverBtn = (Button) findViewById(R.id.discover);
-        mListPairedDevicesBtn = (Button) findViewById(R.id.paired_btn);
+        mScanBtn = (Button)findViewById(R.id.scan);
+        mOffBtn = (Button)findViewById(R.id.off);
+        mDiscoverBtn = (Button)findViewById(R.id.discover);
+        mListPairedDevicesBtn = (Button)findViewById(R.id.paired_btn);
         speedView = (SpeedView) findViewById(R.id.speedView);
-        settingsBtn = (ImageView) findViewById(R.id.settingButton);
-
-
 
 
         mBTArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
         mBTAdapter = BluetoothAdapter.getDefaultAdapter(); // get a handle on the bluetooth radio
 
-        mDevicesListView = (ListView) findViewById(R.id.devices_list_view);
+        mDevicesListView = (ListView)findViewById(R.id.devices_list_view);
         mDevicesListView.setAdapter(mBTArrayAdapter); // assign model to view
         mDevicesListView.setOnItemClickListener(mDeviceClickListener);
 
         // Ask for location permission if not already allowed
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
 
 
-        mHandler = new Handler(Looper.getMainLooper()) {
+        mHandler = new Handler(Looper.getMainLooper()){
             @Override
-            public void handleMessage(Message msg) {
-                if (msg.what == MESSAGE_READ) {
+            public void handleMessage(Message msg){
+                if(msg.what == MESSAGE_READ){
                     byte[] recBytes = (byte[]) msg.obj;
                     int[] recieved = new int[15];
-                    for (int i = 0; i < 15; i++) {
+                    for(int i = 0;i<15;i++){
                         recieved[i] = convertNumbers(recBytes[i]);
                     }
 
-                    double currentPower = ((recieved[10] * 25.5) + (recieved[11] / 10));
+                    double currentPower = ((recieved[10] * 25.5) + (recieved[11]/10));
 
 
-                    double currentRpm = calculateRPM(recieved[5], recieved[6]);
-                    if (currentRpm < 1) {
-                        currentRpm = 0;
-                    }
-                    double currentSpeed = currentRpm * WHEEL_DIAMETER * CONSTANT_FOR_CALCULATING_KMH_SPEED;
+                    double currentRpm = calculateRPM(recieved[5],recieved[6]);
+                    if(currentRpm<1){
+                        currentRpm=0; }
+                    double currentSpeed = currentRpm * WHEEL_DIAMETER *  CONSTANT_FOR_CALCULATING_KMH_SPEED;
 
 
-                    double currentCurr = recieved[13] * 255 + recieved[14];
+                    double currentCurr = recieved[13]*255+recieved[14];
 
-                    if (currentSpeed > MAX_SPEED) {
-                        MAX_SPEED = currentSpeed;
-                    }
-                    if (currentRpm > MAX_RPM) {
-                        MAX_RPM = currentRpm;
-                    }
+                   if(currentSpeed>MAX_SPEED){
+                        MAX_SPEED = currentSpeed;}
+                    if(currentRpm>MAX_RPM){
+                        MAX_RPM = currentRpm;}
 
                     rpmView.setText(String.format("  RPM : %s", currentRpm));
                     powerView.setText(String.format("  POW : %s", currentPower));
-                    currentView.setText("curr : " + recieved[13] + " - " + recieved[14]);
+                    currentView.setText("curr : " + recieved[13]+" - "+ recieved[14]);
                     speedView.setWithTremble(false);
                     speedView.speedTo((float) currentSpeed);
 
 
                 }
 
-                if (msg.what == CONNECTING_STATUS) {
-                    if (msg.arg1 == 1) {
+                if(msg.what == CONNECTING_STATUS){
+                    if(msg.arg1 == 1) {
                         mBluetoothStatus.setText("Connected to Device: " + msg.obj);
                         changeVisibilityWhenConnected(true);
-                    } else
+                    }
+                        else
                         mBluetoothStatus.setText("Connection Failed");
+
 
 
                 }
@@ -177,8 +154,9 @@ public class MainActivity extends AppCompatActivity {
         if (mBTArrayAdapter == null) {
             // Device does not support Bluetooth
             mBluetoothStatus.setText("Status: Bluetooth not found");
-            Toast.makeText(getApplicationContext(), "Bluetooth device not found!", Toast.LENGTH_SHORT).show();
-        } else {
+            Toast.makeText(getApplicationContext(),"Bluetooth device not found!",Toast.LENGTH_SHORT).show();
+        }
+        else {
 
             mScanBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -187,66 +165,28 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            mOffBtn.setOnClickListener(new View.OnClickListener() {
+            mOffBtn.setOnClickListener(new View.OnClickListener(){
                 @Override
-                public void onClick(View v) {
+                public void onClick(View v){
                     bluetoothOff();
                 }
             });
 
             mListPairedDevicesBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
+                public void onClick(View v){
                     listPairedDevices();
                 }
             });
 
-            mDiscoverBtn.setOnClickListener(new View.OnClickListener() {
+            mDiscoverBtn.setOnClickListener(new View.OnClickListener(){
                 @Override
-                public void onClick(View v) {
+                public void onClick(View v){
                     discover();
                 }
             });
-
-
-            settingsBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    changeView();
-                }
-
-            });
         }
     }
-
-    @Override
-    public void onBackPressed()
-    {
-        Intent i = new Intent(getApplicationContext(),MainActivity.class);
-        startActivity(i);
-    }
-
-    public void changeView(){
-        setContentView(R.layout.activity_controller);
-        cAcceleration = (TextView) findViewById(R.id.textViewAcceleration);
-        cBatteryCurr = (TextView) findViewById(R.id.textViewBatteryDrawnCurrent);
-        cMaxEBSPhaseCurr = (TextView) findViewById(R.id.textViewMaxEBSPhaseCurrent); ;
-        cMaxForwardRpm = (TextView) findViewById(R.id.textViewMaxForwardRpm); ;
-        cMaxReverseRpm = (TextView) findViewById(R.id.textViewMaxReverseRpm); ;
-        cNomVolt = (TextView) findViewById(R.id.texViewNominalBatteryVoltage); ;
-        cOverVolt =  (TextView) findViewById(R.id.texViewOvervoltageProtectionValue);;
-        cUnderVolt =  (TextView) findViewById(R.id.textViewUnderVoltageProtectionValue);;
-        cRatedPhaseCurr =  (TextView) findViewById(R.id.textViewRatedPhaseCurrent);;
-        cPAS = (TextView) findViewById(R.id.texViewPAS);
-
-        cDownloadBtn = (Button) findViewById(R.id.buttonDownload);
-        cUploadBtn = (Button) findViewById(R.id.buttonUpload);
-        cResetBtn = (Button) findViewById(R.id.buttonFactorySetting);
-    }
-
-
-
-
 
     /**
      * calculates rpm using two hex numbers
