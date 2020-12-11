@@ -57,8 +57,11 @@ public class MainActivity extends AppCompatActivity {
     private final static String REQUEST_STATE_HEX = "6642020000aa";
     private final static String REQUEST_PARAMETERS_HEX = "6602006866100076";
     private final static String REQUEST_FACTORY_RESET_HEX ="668120030405060708090a0b0c0d0e0f101112131415161718191b1c1d1e1f20212257";
-    private final static String RESPONSE_STATE_HEADER = "10266115";
-    private final static String RESPONSE_PARAMETERS_HEADER = "";
+    private final static String RESPONSE_STATE_HEADER ="10266115"; // 66420B05
+    private final static String RESPONSE_PARAMETERS_HEADER = "10216323";//66102003
+    private final static String WRITE_HEADER_HEX ="";
+    private final static String WRITE__HEX ="";
+
 
     // GUI Components
     private View viewState;
@@ -99,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
     public double MAX_SPEED = 0;
     public double MAX_RPM = 0;
     public String currentLayout ;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
                 if (msg.what == MESSAGE_READ) {
                     byte[] recBytes = (byte[]) msg.obj;
                     String recHeader = String.format("%s%s%s%s",recBytes[0],recBytes[1],recBytes[2],recBytes[3]);
+                    System.out.println(RESPONSE_STATE_HEADER);
                     if(recHeader.equals(RESPONSE_STATE_HEADER)) {
                         int[] recievedState = new int[15];
                         for (int i = 0; i < 15; i++) {
@@ -264,6 +267,7 @@ public class MainActivity extends AppCompatActivity {
     {
         viewController.setVisibility(View.GONE);
         viewState.setVisibility(View.VISIBLE);
+        settingsBtn.setVisibility(View.VISIBLE);
         currentLayout="main";
     }
 
@@ -271,6 +275,7 @@ public class MainActivity extends AppCompatActivity {
         currentLayout = "controller";
         viewState.setVisibility(View.GONE);
         viewController.setVisibility(View.VISIBLE);
+        settingsBtn.setVisibility(View.GONE);
 
         cAcceleration = (TextView) findViewById(R.id.textViewAcceleration);
         cBatteryCurr = (TextView) findViewById(R.id.textViewBatteryDrawnCurrent);

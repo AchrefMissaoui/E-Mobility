@@ -27,7 +27,8 @@
                 android:id="@+id/texViewPAS"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="150"
+                android:inputType="number"
+                android:text="xx"
                 android:textSize="24sp" />
         </TableRow>
 
@@ -48,7 +49,8 @@
                 android:id="@+id/texViewNominalBatteryVoltage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="150"
+                android:inputType="number"
+                android:text="xx"
                 android:textSize="24sp" />
         </TableRow>
 
@@ -69,7 +71,8 @@
                 android:id="@+id/texViewOvervoltageProtectionValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="150"
+                android:inputType="number"
+                android:text="xx"
                 android:textSize="24sp" />
         </TableRow>
 
@@ -90,7 +93,8 @@
                 android:id="@+id/textViewUnderVoltageProtectionValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="150"
+                android:inputType="number"
+                android:text="xx"
                 android:textSize="24sp" />
         </TableRow>
 
@@ -111,7 +115,8 @@
                 android:id="@+id/textViewBatteryDrawnCurrent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="150"
+                android:inputType="number"
+                android:text="xx"
                 android:textSize="24sp" />
         </TableRow>
 
@@ -132,7 +137,8 @@
                 android:id="@+id/textViewRatedPhaseCurrent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="150"
+                android:inputType="number"
+                android:text="xx"
                 android:textSize="24sp" />
         </TableRow>
 
@@ -153,7 +159,8 @@
                 android:id="@+id/textViewMaxForwardRpm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="150"
+                android:inputType="number"
+                android:text="xx"
                 android:textSize="24sp" />
         </TableRow>
 
@@ -174,7 +181,8 @@
                 android:id="@+id/textViewMaxReverseRpm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="150"
+                android:inputType="number"
+                android:text="xx"
                 android:textSize="24sp" />
         </TableRow>
 
@@ -195,7 +203,8 @@
                 android:id="@+id/textViewMaxEBSPhaseCurrent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="150"
+                android:inputType="number"
+                android:text="xx"
                 android:textSize="24sp" />
         </TableRow>
 
@@ -216,7 +225,9 @@
                 android:id="@+id/textViewAcceleration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="150"
+                android:inputType="number"
+                android:keepScreenOn="false"
+                android:text="xx"
                 android:textSize="24sp" />
         </TableRow>
 
