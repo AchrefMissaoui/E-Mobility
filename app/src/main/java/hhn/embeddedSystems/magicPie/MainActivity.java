@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                     for(int i = 0;i<15;i++){
                         recieved[i] = convertNumbers(recBytes[i]);
                     }
-                    float currentPower = (float) (recieved[10]*25.5 + recieved[11]/10);
+                    float currentPower = (float) (recieved[10]*25.6 + recieved[11]/10);
 
 
                     /*
