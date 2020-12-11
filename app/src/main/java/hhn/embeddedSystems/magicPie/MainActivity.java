@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
     private double calculateRPM(int first, int second){
         double frequency = 0;
         double numSeconds = 0;
-            numSeconds = first*255 + second;
+            numSeconds = first*256 + second;
             numSeconds = numSeconds/1000;
             if(numSeconds!=0){
             frequency= 1/numSeconds;}
