@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                         recieved[i] = convertNumbers(recBytes[i]);
                     }
 
-                    double currentPower = ((recieved[10] * 25.5) + (recieved[11]/10));
+                    double currentPower = ((recieved[10] * 25.6) + (recieved[11]/10));
 
 
                     double currentRpm = calculateRPM(recieved[5],recieved[6]);
@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                     double currentSpeed = currentRpm * WHEEL_DIAMETER *  CONSTANT_FOR_CALCULATING_KMH_SPEED;
 
 
-                    double currentCurr = recieved[13]*255+recieved[14];
+                    double currentCurr = recieved[13]*256+recieved[14];
 
                    if(currentSpeed>MAX_SPEED){
                         MAX_SPEED = currentSpeed;}
