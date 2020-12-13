@@ -18,12 +18,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -101,16 +99,17 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothSocket mBTSocket = null; // bi-directional client-to-client data path
     public double MAX_SPEED = 0;
     public double MAX_RPM = 0;
-    public String currentLayout ;
+    public String CURRENT_LAYOUT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        currentLayout = "main";
+        CURRENT_LAYOUT = "main";
         viewState =  findViewById(R.id.activity_state);
         viewController = findViewById(R.id.activity_controller);
 
+        //define items
         mBluetoothStatus = (TextView) findViewById(R.id.bluetooth_status);
         rpmView = (TextView) findViewById(R.id.rpmView);
         powerView = (TextView) findViewById(R.id.powerView);
@@ -126,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         cResetBtn = (Button) findViewById(R.id.buttonFactorySetting);
 
 
-
+        //only use State view
         viewController.setVisibility(View.GONE);
 
 
@@ -141,51 +140,19 @@ public class MainActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
 
-
         mHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
                 if (msg.what == MESSAGE_READ) {
                     byte[] recBytes = (byte[]) msg.obj;
+
+                    // gets the header from the message
                     String recHeader = String.format("%s%s%s%s",recBytes[0],recBytes[1],recBytes[2],recBytes[3]);
-                    System.out.println(RESPONSE_STATE_HEADER);
+
                     if(recHeader.equals(RESPONSE_STATE_HEADER)) {
-                        int[] recievedState = new int[15];
-                        for (int i = 0; i < 15; i++) {
-                            recievedState[i] = convertNumbers(recBytes[i]);
-                        }
-
-                        double currentPower = ((recievedState[10] * 26.5) + (recievedState[11] / 10));
-
-
-                        double currentRpm = calculateRPM(recievedState[5], recievedState[6]);
-                        if (currentRpm < 1) {
-                            currentRpm = 0;
-                        }
-                        double currentSpeed = currentRpm * WHEEL_DIAMETER * CONSTANT_FOR_CALCULATING_KMH_SPEED;
-
-
-                        double currentCurr = recievedState[13] * 256 + recievedState[14];
-
-                        if (currentSpeed > MAX_SPEED) {
-                            MAX_SPEED = currentSpeed;
-                        }
-                        if (currentRpm > MAX_RPM) {
-                            MAX_RPM = currentRpm;
-                        }
-
-                        rpmView.setText(String.format("  RPM : %s", currentRpm));
-                        powerView.setText(String.format("  POW : %s", currentPower));
-                        currentView.setText("curr : " + recievedState[13] + " - " + recievedState[14]);
-                        speedView.setWithTremble(false);
-                        speedView.speedTo((float) currentSpeed);
+                      readState(recBytes);
                     }else if(recHeader.equals(RESPONSE_PARAMETERS_HEADER)){
-
-                        cPAS.setText(String.format("%s",recBytes[4]));
-                        cNomVolt.setText(String.format("%s",recBytes[5]));
-                        cOverVolt.setText(String.format("%s",recBytes[6]));
-                        cUnderVolt.setText(String.format("%s",recBytes[7]));
-
+                        readParameters(recBytes);
                     }
                 }
 
@@ -207,6 +174,9 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Bluetooth device not found!", Toast.LENGTH_SHORT).show();
         } else {
 
+            /*
+             * define onClickListeners
+             */
             mScanBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -239,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
             settingsBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    changeView();
+                    changeViewToController();
                 }
 
             });
@@ -262,17 +232,72 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * uses received bytes to get parameters of the motor
+     * max rpm , current , battery protection , acceleration
+     * @param recievedBytes
+     */
+    private void readParameters(byte[] recievedBytes) {
+        cPAS.setText(String.format("%s",recievedBytes[4]));
+        cNomVolt.setText(String.format("%s",recievedBytes[5]));
+        cOverVolt.setText(String.format("%s",recievedBytes[6]));
+        cUnderVolt.setText(String.format("%s",recievedBytes[7]));
+    }
+
+    /**
+     * uses received bytes to get state of the motor
+     * RPM , Battery , Current
+     * @param recievedBytes
+     */
+    private void readState(byte[] recievedBytes){
+        int[] recievedState = new int[15];
+        for (int i = 0; i < 15; i++) {
+            recievedState[i] = convertNumbers(recievedBytes[i]);
+        }
+
+        double currentPower = ((recievedState[10] * 26.5) + (recievedState[11] / 10));
+
+
+        double currentRpm = calculateRPM(recievedState[5], recievedState[6]);
+        if (currentRpm < 1) {
+            currentRpm = 0;
+        }
+        double currentSpeed = currentRpm * WHEEL_DIAMETER * CONSTANT_FOR_CALCULATING_KMH_SPEED;
+
+
+        double currentCurr = recievedState[13] * 256 + recievedState[14];
+
+        if (currentSpeed > MAX_SPEED) {
+            MAX_SPEED = currentSpeed;
+        }
+        if (currentRpm > MAX_RPM) {
+            MAX_RPM = currentRpm;
+        }
+
+        rpmView.setText(String.format("  RPM : %s", currentRpm));
+        powerView.setText(String.format("  POW : %s", currentPower));
+        currentView.setText(String.format("curr : %d - %d",
+                recievedState[13],
+                recievedState[14]));
+        speedView.setWithTremble(false);
+        speedView.speedTo((float) currentSpeed);
+    }
+
+
     @Override
     public void onBackPressed()
     {
         viewController.setVisibility(View.GONE);
         viewState.setVisibility(View.VISIBLE);
         settingsBtn.setVisibility(View.VISIBLE);
-        currentLayout="main";
+        CURRENT_LAYOUT ="main";
     }
 
-    public void changeView(){
-        currentLayout = "controller";
+    /**
+     * to be used to change the View to controller options
+     */
+    public void changeViewToController(){
+        CURRENT_LAYOUT = "controller";
         viewState.setVisibility(View.GONE);
         viewController.setVisibility(View.VISIBLE);
         settingsBtn.setVisibility(View.GONE);
@@ -287,11 +312,6 @@ public class MainActivity extends AppCompatActivity {
         cUnderVolt =  (TextView) findViewById(R.id.textViewUnderVoltageProtectionValue);
         cRatedPhaseCurr =  (TextView) findViewById(R.id.textViewRatedPhaseCurrent);
         cPAS = (TextView) findViewById(R.id.texViewPAS);
-
-
-
-
-
     }
 
 
@@ -491,7 +511,7 @@ public class MainActivity extends AppCompatActivity {
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            if(currentLayout.equals("main"))
+                                            if(CURRENT_LAYOUT.equals("main"))
                                             mConnectedThread.write(REQUEST_STATE_HEX);
                                         }
                                     });
