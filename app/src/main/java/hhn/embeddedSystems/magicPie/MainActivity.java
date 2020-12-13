@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -75,16 +76,15 @@ public class MainActivity extends AppCompatActivity {
 
     // GUI from controller
     private View viewController;
-    private TextView cPAS ;
-    private TextView cNomVolt;
-    private TextView cOverVolt;
-    private TextView cUnderVolt;
-    private TextView cBatteryCurr;
-    private TextView cRatedPhaseCurr;
-    private TextView cMaxForwardRpm;
-    private TextView cMaxReverseRpm;
-    private TextView cMaxEBSPhaseCurr;
-    private TextView cAcceleration;
+    private EditText cPAS ;
+    private EditText cNomVolt;
+    private EditText cOverVolt;
+    private EditText cUnderVolt;
+    private EditText cBatteryCurr;
+    private EditText cRatedPhaseCurr;
+    private EditText cMaxForwardRpm;
+    private EditText cMaxEBSPhaseCurr;
+    private EditText cAcceleration;
     private Button cDownloadBtn;
     private Button cUploadBtn;
     private Button cResetBtn;
@@ -229,7 +229,37 @@ public class MainActivity extends AppCompatActivity {
                         mConnectedThread.write(REQUEST_FACTORY_RESET_HEX);
                 }
             });
+
+            cUploadBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    getParametersFromView();
+                    sendParametersToMotorController();
+                }
+            });
         }
+    }
+
+    /**
+     * to be used to send hex string of parameters to the controller
+     */
+    //TODO create this method
+    private void sendParametersToMotorController() {
+    }
+
+    /**
+     * gets input information from controller view
+     */
+    private void getParametersFromView(){
+        int PAS = Integer.parseInt(cPAS.getText().toString());
+        int NomVolt = Integer.parseInt(cNomVolt.getText().toString());
+        int OverVolt = Integer.parseInt(cOverVolt.getText().toString());
+        int UnderVolt = Integer.parseInt(cUnderVolt.getText().toString());
+        int Acceleration =  Integer.parseInt(cAcceleration.getText().toString());
+        int RPM = Integer.parseInt(cMaxForwardRpm.getText().toString());
+        int BatteryCurrent = Integer.parseInt(cBatteryCurr.getText().toString());
+        int RatedPhaseCurrent = Integer.parseInt(cRatedPhaseCurr.getText().toString());
+        int EBSPhaseCurrent = Integer.parseInt(cMaxEBSPhaseCurr.getText().toString());
     }
 
     /**
@@ -302,16 +332,15 @@ public class MainActivity extends AppCompatActivity {
         viewController.setVisibility(View.VISIBLE);
         settingsBtn.setVisibility(View.GONE);
 
-        cAcceleration = (TextView) findViewById(R.id.textViewAcceleration);
-        cBatteryCurr = (TextView) findViewById(R.id.textViewBatteryDrawnCurrent);
-        cMaxEBSPhaseCurr = (TextView) findViewById(R.id.textViewMaxEBSPhaseCurrent);
-        cMaxForwardRpm = (TextView) findViewById(R.id.textViewMaxForwardRpm);
-        cMaxReverseRpm = (TextView) findViewById(R.id.textViewMaxReverseRpm);
-        cNomVolt = (TextView) findViewById(R.id.texViewNominalBatteryVoltage);
-        cOverVolt =  (TextView) findViewById(R.id.texViewOvervoltageProtectionValue);
-        cUnderVolt =  (TextView) findViewById(R.id.textViewUnderVoltageProtectionValue);
-        cRatedPhaseCurr =  (TextView) findViewById(R.id.textViewRatedPhaseCurrent);
-        cPAS = (TextView) findViewById(R.id.texViewPAS);
+        cAcceleration =     (EditText)  findViewById(R.id.editTextAcceleration);
+        cBatteryCurr =      (EditText)  findViewById(R.id.editTextBatteryDrawnCurrent);
+        cMaxEBSPhaseCurr =  (EditText)  findViewById(R.id.editTextMaxEBSPhaseCurrent);
+        cMaxForwardRpm =    (EditText)  findViewById(R.id.editTextMaxForwardRpm);
+        cNomVolt =          (EditText)  findViewById(R.id.editTextNominalBatteryVoltage);
+        cOverVolt =         (EditText)  findViewById(R.id.editTextOvervoltageProtectionValue);
+        cUnderVolt =        (EditText)  findViewById(R.id.editTextUnderVoltageProtectionValue);
+        cRatedPhaseCurr =   (EditText)  findViewById(R.id.editTextRatedPhaseCurrent);
+        cPAS =              (EditText)  findViewById(R.id.editTextPAS);
     }
 
 
