@@ -31,6 +31,7 @@ import com.github.anastr.speedviewlib.SpeedView;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -58,8 +59,9 @@ public class MainActivity extends AppCompatActivity {
     private final static String REQUEST_FACTORY_RESET_HEX ="668120030405060708090a0b0c0d0e0f101112131415161718191b1c1d1e1f20212257";
     private final static String RESPONSE_STATE_HEADER ="10266115"; // 66420B05
     private final static String RESPONSE_PARAMETERS_HEADER = "10217322";//66112002
-    private final static String WRITE_HEADER_HEX ="";
-    private final static String WRITE__HEX ="";
+    private final static String WRITE_HEADER_HEX ="66212003";
+    private final static String WRITE_SECOND_HEX ="668020030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212256";
+    private static String[] UPDATE_TO_BE_SENT;
 
 
     // GUI Components
@@ -226,8 +228,9 @@ public class MainActivity extends AppCompatActivity {
             cResetBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(mConnectedThread != null)
+                    if(mConnectedThread != null){
                         mConnectedThread.write(REQUEST_FACTORY_RESET_HEX);
+                        mConnectedThread.write(WRITE_SECOND_HEX);}
                 }
             });
 
@@ -246,21 +249,37 @@ public class MainActivity extends AppCompatActivity {
      */
     //TODO create this method
     private void sendParametersToMotorController() {
+        if(mConnectedThread!=null){
+        mConnectedThread.write(WRITE_HEADER_HEX+ Arrays.toString(UPDATE_TO_BE_SENT));
+        mConnectedThread.write(WRITE_SECOND_HEX);}
     }
 
     /**
      * gets input information from controller view
+     * parameters are then stored in an array of strings in the right order
+     * //TODO convert to hex before sending
      */
     private void getParametersFromView(){
+        UPDATE_TO_BE_SENT = new String[31];
         int PAS = Integer.parseInt(cPAS.getText().toString());
         int NomVolt = Integer.parseInt(cNomVolt.getText().toString());
         int OverVolt = Integer.parseInt(cOverVolt.getText().toString());
         int UnderVolt = Integer.parseInt(cUnderVolt.getText().toString());
         int Acceleration =  Integer.parseInt(cAcceleration.getText().toString());
+        UPDATE_TO_BE_SENT[9] = String.valueOf(Acceleration);
         int RPM = Integer.parseInt(cMaxForwardRpm.getText().toString());
+        if(RPM > 0){
+          UPDATE_TO_BE_SENT[6]= String.valueOf(RPM%256);
+          UPDATE_TO_BE_SENT[7] = String.valueOf(RPM - 256);
+        } else { UPDATE_TO_BE_SENT[7] = String.valueOf(RPM); }
         int BatteryCurrent = Integer.parseInt(cBatteryCurr.getText().toString());
         int RatedPhaseCurrent = Integer.parseInt(cRatedPhaseCurr.getText().toString());
         int EBSPhaseCurrent = Integer.parseInt(cMaxEBSPhaseCurr.getText().toString());
+        int checksum = 170;//checksum vom header
+        for (String item : UPDATE_TO_BE_SENT){
+            checksum = checksum + Integer.parseInt(item);
+        }
+        UPDATE_TO_BE_SENT[31] = String.valueOf(checksum%256);
     }
 
     /**
