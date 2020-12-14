@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private final static double WHEEL_DIAMETER = 71.12 ; // in cm
     private final static int MOTOR_POLES = 4;
     private final static double CONSTANT_FOR_CALCULATING_KMH_SPEED = 0.001885;
+    private final static double FOUND_PATTERN_FOR_RPM = 1.85; // found with the help of osciloscope
 
     // GUI Components
     private TextView mBluetoothStatus;
@@ -198,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
             numSeconds = numSeconds/1000;
             if(numSeconds!=0){
             frequency= 1/numSeconds;}
-        return (frequency * 60 * 2) / MOTOR_POLES; // no-load rpm
+        return ((frequency * 60 * 2) / MOTOR_POLES)*FOUND_PATTERN_FOR_RPM; // no-load rpm
     }
 
     /**
