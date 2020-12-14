@@ -54,10 +54,10 @@ public class MainActivity extends AppCompatActivity {
     private final static double CONSTANT_FOR_CALCULATING_KMH_SPEED = 0.001885;
     // #define requests
     private final static String REQUEST_STATE_HEX = "6642020000aa";
-    private final static String REQUEST_PARAMETERS_HEX = "6602006866100076";
+    private final static String REQUEST_PARAMETERS_HEX = "66110077";
     private final static String REQUEST_FACTORY_RESET_HEX ="668120030405060708090a0b0c0d0e0f101112131415161718191b1c1d1e1f20212257";
     private final static String RESPONSE_STATE_HEADER ="10266115"; // 66420B05
-    private final static String RESPONSE_PARAMETERS_HEADER = "10216323";//66102003
+    private final static String RESPONSE_PARAMETERS_HEADER = "10217322";//66112002
     private final static String WRITE_HEADER_HEX ="";
     private final static String WRITE__HEX ="";
 
@@ -152,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
                     if(recHeader.equals(RESPONSE_STATE_HEADER)) {
                       readState(recBytes);
                     }else if(recHeader.equals(RESPONSE_PARAMETERS_HEADER)){
+
                         readParameters(recBytes);
                     }
                 }
@@ -268,6 +269,7 @@ public class MainActivity extends AppCompatActivity {
      * @param recievedBytes
      */
     private void readParameters(byte[] recievedBytes) {
+        changeViewToController();
         cPAS.setText(String.format("%s",recievedBytes[4]));
         cNomVolt.setText(String.format("%s",recievedBytes[5]));
         cOverVolt.setText(String.format("%s",recievedBytes[6]));
