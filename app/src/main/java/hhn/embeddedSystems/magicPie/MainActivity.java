@@ -29,8 +29,11 @@ import android.widget.Toast;
 
 import com.github.anastr.speedviewlib.SpeedView;
 
+import org.apache.commons.codec.binary.Hex;
+
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.Timer;
@@ -266,12 +269,12 @@ public class MainActivity extends AppCompatActivity {
         int OverVolt = Integer.parseInt(cOverVolt.getText().toString());
         int UnderVolt = Integer.parseInt(cUnderVolt.getText().toString());
         int Acceleration =  Integer.parseInt(cAcceleration.getText().toString());
-        UPDATE_TO_BE_SENT[9] = String.valueOf(Acceleration);
+        UPDATE_TO_BE_SENT[9] = Hex.encodeHexString(ByteBuffer.allocate(Acceleration));
         int RPM = Integer.parseInt(cMaxForwardRpm.getText().toString());
         if(RPM > 0){
-          UPDATE_TO_BE_SENT[6]= String.valueOf(RPM%256);
-          UPDATE_TO_BE_SENT[7] = String.valueOf(RPM - 256);
-        } else { UPDATE_TO_BE_SENT[7] = String.valueOf(RPM); }
+          UPDATE_TO_BE_SENT[6]= Hex.encodeHexString(ByteBuffer.allocate(RPM%256));
+          UPDATE_TO_BE_SENT[7] =  Hex.encodeHexString(ByteBuffer.allocate(RPM-256));
+        } else { UPDATE_TO_BE_SENT[7] =  Hex.encodeHexString(ByteBuffer.allocate(RPM)); }
         int BatteryCurrent = Integer.parseInt(cBatteryCurr.getText().toString());
         int RatedPhaseCurrent = Integer.parseInt(cRatedPhaseCurr.getText().toString());
         int EBSPhaseCurrent = Integer.parseInt(cMaxEBSPhaseCurr.getText().toString());
@@ -280,6 +283,7 @@ public class MainActivity extends AppCompatActivity {
             checksum = checksum + Integer.parseInt(item);
         }
         UPDATE_TO_BE_SENT[31] = String.valueOf(checksum%256);
+        String h = Hex.encodeHexString(ByteBuffer.allocate(checksum));
     }
 
     /**
