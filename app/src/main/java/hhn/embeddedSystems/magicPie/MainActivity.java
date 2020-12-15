@@ -269,9 +269,12 @@ public class MainActivity extends AppCompatActivity {
     /**
      * gets input information from controller view
      * parameters are then stored in an array of strings in the right order
+     * throws numberFormatException when editBox empty
      */
     private void getParametersFromView(){
+
         UPDATE_TO_BE_SENT = new String[33];
+        try{
         int PAS = Integer.parseInt(cPAS.getText().toString());
         UPDATE_TO_BE_SENT[1] = String.valueOf(PAS);
         int NomVolt = Integer.parseInt(cNomVolt.getText().toString());
@@ -285,14 +288,22 @@ public class MainActivity extends AppCompatActivity {
         int RPM = Integer.parseInt(cMaxForwardRpm.getText().toString());
         UPDATE_TO_BE_SENT[6]= String.valueOf(RPM%256);
         UPDATE_TO_BE_SENT[7] = String.valueOf((int)(RPM/256));
-
         int Acceleration =  Integer.parseInt(cAcceleration.getText().toString());
-        UPDATE_TO_BE_SENT[10] = String.valueOf(Acceleration);
+        UPDATE_TO_BE_SENT[10] = String.valueOf(Acceleration);}
+        catch (NumberFormatException e){
+            e.printStackTrace();
+           // cUploadBtn.setClickable(false);
+        }
         int checksum = 170;//checksum vom header
         for (int i = 0; i < UPDATE_TO_BE_SENT.length-1; i++) {
-            if(UPDATE_TO_BE_SENT[i]==null)
-                UPDATE_TO_BE_SENT[i]= String.valueOf(receivedParams[i+3]);
-            String item = UPDATE_TO_BE_SENT[i];
+            if (UPDATE_TO_BE_SENT[i] == null)
+                UPDATE_TO_BE_SENT[i] = String.valueOf(receivedParams[i + 3]);
+            if (UPDATE_TO_BE_SENT[i] == null && receivedParams== null)
+                cUploadBtn.setClickable(false);
+
+
+                String item = UPDATE_TO_BE_SENT[i];
+
             checksum = checksum + Integer.parseInt(item);
         }
         UPDATE_TO_BE_SENT[32] = String.valueOf(checksum%256);
