@@ -63,11 +63,12 @@ public class ConnectedThread extends Thread {
 
     /* Call this from the main activity to send data to the remote device */
     public void write(String input) {
-        byte[] bytes = new byte[6];      //converts entered String into bytes
+        byte[] bytes = new byte[(int)input.length()/2];      //converts entered String into bytes
         try {
             bytes = decodeHex(input.toCharArray());
         } catch (DecoderException e) {
             e.printStackTrace();
+            System.out.println(input);
         }
         try {
             mmOutStream.write(bytes);

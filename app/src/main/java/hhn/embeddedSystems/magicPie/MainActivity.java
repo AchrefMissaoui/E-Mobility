@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -29,12 +30,8 @@ import android.widget.Toast;
 
 import com.github.anastr.speedviewlib.SpeedView;
 
-import org.apache.commons.codec.binary.Hex;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -59,12 +56,14 @@ public class MainActivity extends AppCompatActivity {
     // #define requests
     private final static String REQUEST_STATE_HEX = "6642020000aa";
     private final static String REQUEST_PARAMETERS_HEX = "66110077";
-    private final static String REQUEST_FACTORY_RESET_HEX ="668120030405060708090a0b0c0d0e0f101112131415161718191b1c1d1e1f20212257";
-    private final static String RESPONSE_STATE_HEADER ="10266115"; // 66420B05
-    private final static String RESPONSE_PARAMETERS_HEADER = "10217322";//66112002
-    private final static String WRITE_HEADER_HEX ="66212003";
+    private final static String REQUEST_FACTORY_RESET_HEX ="668120030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212257";
+    private final static String RESPONSE_STATE_HEADER ="1026611"; // 66420B
+    private final static String RESPONSE_PARAMETERS_HEADER = "1021732";//661120
+    private final static String WRITE_HEADER_HEX ="662120";//10233320
     private final static String WRITE_SECOND_HEX ="668020030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212256";
     private static String[] UPDATE_TO_BE_SENT;
+    private static int FLAG = 0;
+    private static int[] receivedParams = new int[36];
 
 
     // GUI Components
@@ -86,13 +85,16 @@ public class MainActivity extends AppCompatActivity {
     private EditText cOverVolt;
     private EditText cUnderVolt;
     private EditText cBatteryCurr;
-    private EditText cRatedPhaseCurr;
     private EditText cMaxForwardRpm;
-    private EditText cMaxEBSPhaseCurr;
     private EditText cAcceleration;
     private Button cDownloadBtn;
     private Button cUploadBtn;
     private Button cResetBtn;
+    private CheckBox cThrottleCheckbox;
+    private CheckBox cPasCheckbox;
+    private CheckBox cRegenCheckbox;
+    private CheckBox cReverseCheckbox;
+
 
 
     private BluetoothAdapter mBTAdapter;
@@ -152,12 +154,11 @@ public class MainActivity extends AppCompatActivity {
                     byte[] recBytes = (byte[]) msg.obj;
 
                     // gets the header from the message
-                    String recHeader = String.format("%s%s%s%s",recBytes[0],recBytes[1],recBytes[2],recBytes[3]);
+                    String recHeader = String.format("%s%s%s",recBytes[0],recBytes[1],recBytes[2]);
 
                     if(recHeader.equals(RESPONSE_STATE_HEADER)) {
                       readState(recBytes);
                     }else if(recHeader.equals(RESPONSE_PARAMETERS_HEADER)){
-
                         readParameters(recBytes);
                     }
                 }
@@ -253,37 +254,66 @@ public class MainActivity extends AppCompatActivity {
     //TODO create this method
     private void sendParametersToMotorController() {
         if(mConnectedThread!=null){
-        mConnectedThread.write(WRITE_HEADER_HEX+ Arrays.toString(UPDATE_TO_BE_SENT));
-        mConnectedThread.write(WRITE_SECOND_HEX);}
+            mConnectedThread.write(WRITE_HEADER_HEX);
+            if(FLAG<10) {
+                mConnectedThread.write("0"+FLAG);
+            } else
+                mConnectedThread.write(""+FLAG);
+            for (int i = 0; i < UPDATE_TO_BE_SENT.length; i++) {
+                String item = UPDATE_TO_BE_SENT[i];
+                item = Integer.toString(Integer.parseInt(item), 16);
+                if(item.length() % 2 == 1)
+                    item = "0"+item;
+                mConnectedThread.write(item);
+            }
+            mConnectedThread.write(WRITE_SECOND_HEX);
+            }
     }
 
     /**
      * gets input information from controller view
      * parameters are then stored in an array of strings in the right order
-     * //TODO convert to hex before sending
+     * //TODO fix checksum, not working yet
      */
     private void getParametersFromView(){
-        UPDATE_TO_BE_SENT = new String[31];
+        UPDATE_TO_BE_SENT = new String[32];
         int PAS = Integer.parseInt(cPAS.getText().toString());
+        UPDATE_TO_BE_SENT[0] = String.valueOf(PAS);
         int NomVolt = Integer.parseInt(cNomVolt.getText().toString());
+        UPDATE_TO_BE_SENT[1] = String.valueOf(NomVolt);
         int OverVolt = Integer.parseInt(cOverVolt.getText().toString());
+        UPDATE_TO_BE_SENT[2] = String.valueOf(OverVolt);
         int UnderVolt = Integer.parseInt(cUnderVolt.getText().toString());
-        int Acceleration =  Integer.parseInt(cAcceleration.getText().toString());
-        UPDATE_TO_BE_SENT[9] = Hex.encodeHexString(ByteBuffer.allocate(Acceleration));
-        int RPM = Integer.parseInt(cMaxForwardRpm.getText().toString());
-        if(RPM > 0){
-          UPDATE_TO_BE_SENT[6]= Hex.encodeHexString(ByteBuffer.allocate(RPM%256));
-          UPDATE_TO_BE_SENT[7] =  Hex.encodeHexString(ByteBuffer.allocate(RPM-256));
-        } else { UPDATE_TO_BE_SENT[7] =  Hex.encodeHexString(ByteBuffer.allocate(RPM)); }
+        UPDATE_TO_BE_SENT[3] = String.valueOf(UnderVolt);
         int BatteryCurrent = Integer.parseInt(cBatteryCurr.getText().toString());
-        int RatedPhaseCurrent = Integer.parseInt(cRatedPhaseCurr.getText().toString());
-        int EBSPhaseCurrent = Integer.parseInt(cMaxEBSPhaseCurr.getText().toString());
+        UPDATE_TO_BE_SENT[4] = String.valueOf(BatteryCurrent);
+        int RPM = Integer.parseInt(cMaxForwardRpm.getText().toString());
+        UPDATE_TO_BE_SENT[5]= String.valueOf(RPM%256);
+        UPDATE_TO_BE_SENT[6] = String.valueOf((int)(RPM/256));
+
+        int Acceleration =  Integer.parseInt(cAcceleration.getText().toString());
+        UPDATE_TO_BE_SENT[9] = String.valueOf(Acceleration);
         int checksum = 170;//checksum vom header
-        for (String item : UPDATE_TO_BE_SENT){
+        for (int i = 0; i < UPDATE_TO_BE_SENT.length-1; i++) {
+            if(UPDATE_TO_BE_SENT[i]==null)
+                UPDATE_TO_BE_SENT[i]= String.valueOf(receivedParams[i+4]);
+            String item = UPDATE_TO_BE_SENT[i];
             checksum = checksum + Integer.parseInt(item);
         }
         UPDATE_TO_BE_SENT[31] = String.valueOf(checksum%256);
-        String h = Hex.encodeHexString(ByteBuffer.allocate(checksum));
+
+        //TODO send flags better , needs to be fixed
+       int localFlag = 0;
+
+        if(cPasCheckbox.isEnabled())        localFlag += 8;
+        if(cThrottleCheckbox.isEnabled())   localFlag += 4;
+        if(cReverseCheckbox.isEnabled())    localFlag += 2;
+        if(cRegenCheckbox.isEnabled())      localFlag += 1;
+
+        FLAG = localFlag;
+
+
+
     }
 
     /**
@@ -292,11 +322,45 @@ public class MainActivity extends AppCompatActivity {
      * @param recievedBytes
      */
     private void readParameters(byte[] recievedBytes) {
+        for (int i = 0; i < 36; i++) {
+            receivedParams[i] = convertNumbers( recievedBytes[i]);
+        }
         changeViewToController();
-        cPAS.setText(String.format("%s",recievedBytes[4]));
-        cNomVolt.setText(String.format("%s",recievedBytes[5]));
-        cOverVolt.setText(String.format("%s",recievedBytes[6]));
-        cUnderVolt.setText(String.format("%s",recievedBytes[7]));
+        cPAS.setText(String.valueOf(receivedParams[4]));
+        cNomVolt.setText(String.valueOf(receivedParams[5]));
+        cOverVolt.setText(String.valueOf(receivedParams[6]));
+        cUnderVolt.setText(String.valueOf(receivedParams[7]));
+        cBatteryCurr.setText(String.valueOf(receivedParams[8]));
+        int MaxRpm = 0;
+        if (receivedParams[10]>0)
+            MaxRpm =  receivedParams[10]*256 + receivedParams[9];
+        else
+            MaxRpm = receivedParams[9];
+        cMaxForwardRpm.setText(String.valueOf(MaxRpm));
+        cAcceleration.setText(String.valueOf(receivedParams[13]));
+
+        FLAG = receivedParams[3];
+
+        int localFlag = FLAG;
+       if(localFlag >= 8){
+           cPasCheckbox.setChecked(true);
+           localFlag = localFlag - 8;
+        }else
+            cPasCheckbox.setChecked(false);
+       if(localFlag >= 4){
+               cThrottleCheckbox.setChecked(true);
+               localFlag = localFlag - 4;
+           } else
+               cThrottleCheckbox.setChecked(false);
+       if(localFlag >= 2){
+           cReverseCheckbox.setChecked(true);
+           localFlag = localFlag - 2;
+        }else
+           cReverseCheckbox.setChecked(false);
+
+        cRegenCheckbox.setChecked(localFlag % 2 == 1);
+
+
     }
 
     /**
@@ -359,13 +423,15 @@ public class MainActivity extends AppCompatActivity {
 
         cAcceleration =     (EditText)  findViewById(R.id.editTextAcceleration);
         cBatteryCurr =      (EditText)  findViewById(R.id.editTextBatteryDrawnCurrent);
-        cMaxEBSPhaseCurr =  (EditText)  findViewById(R.id.editTextMaxEBSPhaseCurrent);
         cMaxForwardRpm =    (EditText)  findViewById(R.id.editTextMaxForwardRpm);
         cNomVolt =          (EditText)  findViewById(R.id.editTextNominalBatteryVoltage);
         cOverVolt =         (EditText)  findViewById(R.id.editTextOvervoltageProtectionValue);
         cUnderVolt =        (EditText)  findViewById(R.id.editTextUnderVoltageProtectionValue);
-        cRatedPhaseCurr =   (EditText)  findViewById(R.id.editTextRatedPhaseCurrent);
         cPAS =              (EditText)  findViewById(R.id.editTextPAS);
+        cPasCheckbox=       (CheckBox)  findViewById(R.id.checkBoxPAS);
+        cRegenCheckbox=     (CheckBox)  findViewById(R.id.checkBoxRegen);
+        cReverseCheckbox=   (CheckBox)  findViewById(R.id.checkBoxReverse);
+        cThrottleCheckbox=  (CheckBox)  findViewById(R.id.checkBoxThrottle);
     }
 
 
