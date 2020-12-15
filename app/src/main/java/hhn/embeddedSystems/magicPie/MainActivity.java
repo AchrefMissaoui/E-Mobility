@@ -255,10 +255,6 @@ public class MainActivity extends AppCompatActivity {
     private void sendParametersToMotorController() {
         if(mConnectedThread!=null){
             mConnectedThread.write(WRITE_HEADER_HEX);
-            if(FLAG<10) {
-                mConnectedThread.write("0"+FLAG);
-            } else
-                mConnectedThread.write(""+FLAG);
             for (int i = 0; i < UPDATE_TO_BE_SENT.length; i++) {
                 String item = UPDATE_TO_BE_SENT[i];
                 item = Integer.toString(Integer.parseInt(item), 16);
@@ -273,44 +269,42 @@ public class MainActivity extends AppCompatActivity {
     /**
      * gets input information from controller view
      * parameters are then stored in an array of strings in the right order
-     * //TODO fix checksum, not working yet
      */
     private void getParametersFromView(){
-        UPDATE_TO_BE_SENT = new String[32];
+        UPDATE_TO_BE_SENT = new String[33];
         int PAS = Integer.parseInt(cPAS.getText().toString());
-        UPDATE_TO_BE_SENT[0] = String.valueOf(PAS);
+        UPDATE_TO_BE_SENT[1] = String.valueOf(PAS);
         int NomVolt = Integer.parseInt(cNomVolt.getText().toString());
-        UPDATE_TO_BE_SENT[1] = String.valueOf(NomVolt);
+        UPDATE_TO_BE_SENT[2] = String.valueOf(NomVolt);
         int OverVolt = Integer.parseInt(cOverVolt.getText().toString());
-        UPDATE_TO_BE_SENT[2] = String.valueOf(OverVolt);
+        UPDATE_TO_BE_SENT[3] = String.valueOf(OverVolt);
         int UnderVolt = Integer.parseInt(cUnderVolt.getText().toString());
-        UPDATE_TO_BE_SENT[3] = String.valueOf(UnderVolt);
+        UPDATE_TO_BE_SENT[4] = String.valueOf(UnderVolt);
         int BatteryCurrent = Integer.parseInt(cBatteryCurr.getText().toString());
-        UPDATE_TO_BE_SENT[4] = String.valueOf(BatteryCurrent);
+        UPDATE_TO_BE_SENT[5] = String.valueOf(BatteryCurrent);
         int RPM = Integer.parseInt(cMaxForwardRpm.getText().toString());
-        UPDATE_TO_BE_SENT[5]= String.valueOf(RPM%256);
-        UPDATE_TO_BE_SENT[6] = String.valueOf((int)(RPM/256));
+        UPDATE_TO_BE_SENT[6]= String.valueOf(RPM%256);
+        UPDATE_TO_BE_SENT[7] = String.valueOf((int)(RPM/256));
 
         int Acceleration =  Integer.parseInt(cAcceleration.getText().toString());
-        UPDATE_TO_BE_SENT[9] = String.valueOf(Acceleration);
+        UPDATE_TO_BE_SENT[10] = String.valueOf(Acceleration);
         int checksum = 170;//checksum vom header
         for (int i = 0; i < UPDATE_TO_BE_SENT.length-1; i++) {
             if(UPDATE_TO_BE_SENT[i]==null)
-                UPDATE_TO_BE_SENT[i]= String.valueOf(receivedParams[i+4]);
+                UPDATE_TO_BE_SENT[i]= String.valueOf(receivedParams[i+3]);
             String item = UPDATE_TO_BE_SENT[i];
             checksum = checksum + Integer.parseInt(item);
         }
-        UPDATE_TO_BE_SENT[31] = String.valueOf(checksum%256);
+        UPDATE_TO_BE_SENT[32] = String.valueOf(checksum%256);
 
-        //TODO send flags better , needs to be fixed
        int localFlag = 0;
 
-        if(cPasCheckbox.isEnabled())        localFlag += 8;
-        if(cThrottleCheckbox.isEnabled())   localFlag += 4;
-        if(cReverseCheckbox.isEnabled())    localFlag += 2;
-        if(cRegenCheckbox.isEnabled())      localFlag += 1;
-
+        if(cPasCheckbox.isChecked())        localFlag += 8;
+        if(cThrottleCheckbox.isChecked())   localFlag += 4;
+        if(cReverseCheckbox.isChecked())    localFlag += 2;
+        if(cRegenCheckbox.isChecked())      localFlag += 1;
         FLAG = localFlag;
+        UPDATE_TO_BE_SENT[0] = String.valueOf(FLAG);
 
 
 
