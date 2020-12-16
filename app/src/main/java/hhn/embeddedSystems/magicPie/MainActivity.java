@@ -385,14 +385,12 @@ public class MainActivity extends AppCompatActivity {
         double currentPower = ((recievedState[10] * 26.5) + (recievedState[11] / 10));
 
 
-        double currentRpm = calculateRPM(recievedState[5], recievedState[6]);
+        double currentRpm = calculateRPM(recievedState[5],recievedState[6]);
         if (currentRpm < 1) {
             currentRpm = 0;
         }
         double currentSpeed = currentRpm * WHEEL_DIAMETER * CONSTANT_FOR_CALCULATING_KMH_SPEED;
 
-
-        double currentCurr = recievedState[13] * 256 + recievedState[14];
 
         if (currentSpeed > MAX_SPEED) {
             MAX_SPEED = currentSpeed;
@@ -403,9 +401,6 @@ public class MainActivity extends AppCompatActivity {
 
         rpmView.setText(String.format("  RPM : %s", currentRpm));
         powerView.setText(String.format("  POW : %s", currentPower));
-        currentView.setText(String.format("curr : %d - %d",
-                recievedState[13],
-                recievedState[14]));
         speedView.setWithTremble(false);
         speedView.speedTo((float) currentSpeed);
     }
@@ -441,23 +436,7 @@ public class MainActivity extends AppCompatActivity {
         cReverseCheckbox=   (CheckBox)  findViewById(R.id.checkBoxReverse);
         cThrottleCheckbox=  (CheckBox)  findViewById(R.id.checkBoxThrottle);
     }
-
-
-
-
-
-    /**
-     * calculates rpm using two hex numbers
-     */
-    private double calculateRPM(int first, int second){
-        double frequency = 0;
-        double numSeconds = 0;
-            numSeconds = first*256 + second;
-            numSeconds = numSeconds/1000;
-            if(numSeconds!=0){
-            frequency= 1/numSeconds;}
-        return (frequency * 60 * 2) / MOTOR_POLES; // no-load rpm
-    }
+    
 
     /**
      * changes items visibility when connected/disconnected to a BT device
