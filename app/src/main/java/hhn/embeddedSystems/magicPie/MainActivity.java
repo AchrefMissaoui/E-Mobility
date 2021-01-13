@@ -107,8 +107,6 @@ public class MainActivity extends AppCompatActivity {
     private Handler mHandler; // Our main handler that will receive callback notifications
     private ConnectedThread mConnectedThread; // bluetooth background worker thread to send and receive data
     private BluetoothSocket mBTSocket = null; // bi-directional client-to-client data path
-    public double MAX_SPEED = 0;
-    public double MAX_RPM = 0;
     public String CURRENT_LAYOUT;
 
     @Override
@@ -254,7 +252,6 @@ public class MainActivity extends AppCompatActivity {
     /**
      * to be used to send hex string of parameters to the controller
      */
-    //TODO create this method
     private void sendParametersToMotorController() {
         if(mConnectedThread!=null){
             mConnectedThread.write(WRITE_HEADER_HEX);
@@ -297,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
            // cUploadBtn.setClickable(false);
         }
-        int checksum = 170;//checksum vom header
+        int checksum = 167;//checksum vom header
         for (int i = 0; i < UPDATE_TO_BE_SENT.length-1; i++) {
             if (UPDATE_TO_BE_SENT[i] == null)
                 UPDATE_TO_BE_SENT[i] = String.valueOf(receivedParams[i + 3]);
@@ -390,14 +387,6 @@ public class MainActivity extends AppCompatActivity {
             currentRpm = 0;
         }
         double currentSpeed = currentRpm * WHEEL_DIAMETER * CONSTANT_FOR_CALCULATING_KMH_SPEED;
-
-
-        if (currentSpeed > MAX_SPEED) {
-            MAX_SPEED = currentSpeed;
-        }
-        if (currentRpm > MAX_RPM) {
-            MAX_RPM = currentRpm;
-        }
 
         rpmView.setText(String.format("  RPM : %s", currentRpm));
         powerView.setText(String.format("  POW : %s", currentPower));
