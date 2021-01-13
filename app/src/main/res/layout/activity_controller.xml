@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="hhn.embeddedSystems.magicPie.MainActivity">
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="547dp">
+
+
+        <TableRow
+            android:id="@+id/rowPAS"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <EditText
+                android:id="@+id/editTextPAS"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:width="90dp"
+                android:ems="10"
+                android:inputType="number"
+                android:textSize="24sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:text="PAS Ratio"
+                android:textIsSelectable="false"
+                android:textSize="24sp" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/rowNominalBatteryVoltage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <EditText
+                android:id="@+id/editTextNominalBatteryVoltage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:width="90dp"
+                android:ems="10"
+                android:inputType="number"
+                android:textSize="24sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:text="Nominal Batter Voltage"
+                android:textIsSelectable="false"
+                android:textSize="24sp" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/rowOvervoltageProtectionValue"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <EditText
+                android:id="@+id/editTextOvervoltageProtectionValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:width="90dp"
+                android:ems="10"
+                android:inputType="number"
+                android:textSize="24sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:text="Overvoltage Protection Value"
+                android:textIsSelectable="false"
+                android:textSize="24sp" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/rowUnderVoltageProtectionValue"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <EditText
+                android:id="@+id/editTextUnderVoltageProtectionValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:width="90dp"
+                android:ems="10"
+                android:inputType="number"
+                android:textSize="24sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:text="Undervoltage Protection Value"
+                android:textIsSelectable="false"
+                android:textSize="24sp" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/rowBatteryDrawnCurrent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <EditText
+                android:id="@+id/editTextBatteryDrawnCurrent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:width="90dp"
+                android:ems="10"
+                android:inputType="number"
+                android:textSize="24sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:text="Battery Drawn Current"
+                android:textIsSelectable="false"
+                android:textSize="24sp" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/rowMaxForwardRpm"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <EditText
+                android:id="@+id/editTextMaxForwardRpm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:width="90dp"
+                android:ems="10"
+                android:inputType="number"
+                android:textSize="24sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:text="Maximum Forward RPM"
+                android:textIsSelectable="false"
+                android:textSize="24sp" />
+
+        </TableRow>
+
+
+        <TableRow
+            android:id="@+id/rowAcceleration"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <EditText
+                android:id="@+id/editTextAcceleration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:width="90dp"
+                android:ems="10"
+                android:inputType="number"
+                android:textSize="24sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:text="Acceleration % "
+                android:textIsSelectable="false"
+                android:textSize="24sp" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/rowCheckboxes"
+            android:layout_width="295dp"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="73dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <CheckBox
+                    android:id="@+id/checkBoxThrottle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:width="50dp"
+                    android:text="Throttle" />
+
+                <CheckBox
+                    android:id="@+id/checkBoxPAS"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="PAS" />
+
+                <CheckBox
+                    android:id="@+id/checkBoxRegen"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Regen" />
+
+                <CheckBox
+                    android:id="@+id/checkBoxReverse"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Reverse" />
+            </LinearLayout>
+        </TableRow>
+
+    </TableLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/buttonUpload"
+            android:layout_width="204dp"
+            android:layout_height="wrap_content"
+            android:text="Upload" />
+
+        <Button
+            android:id="@+id/buttonDownload"
+            android:layout_width="208dp"
+            android:layout_height="wrap_content"
+            android:text="Download" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/buttonFactorySetting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Reset Factory Settings" />
+
+
+</LinearLayout>
