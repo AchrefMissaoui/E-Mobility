@@ -34,28 +34,25 @@
     <TextView
         android:id="@+id/rpmView"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
-        android:textSize="20sp"
+        android:layout_height="wrap_content"
         android:textStyle="bold|italic"
         android:visibility="gone" />
 
     <TextView
         android:id="@+id/powerView"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
-        android:textSize="30sp"
+        android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <TextView
         android:id="@+id/currentView"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
-        android:textSize="15sp"
+        android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <ListView
         android:id="@+id/devices_list_view"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:choiceMode="singleChoice"
         android:visibility="visible" />
@@ -63,6 +60,6 @@
     <com.github.anastr.speedviewlib.SpeedView
         android:id="@+id/speedView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:visibility="gone" />
 </LinearLayout>
